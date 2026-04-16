@@ -9,6 +9,7 @@ from src.models import (
     RankingItem,
     get_engine,
     create_tables,
+    migrate_db,
     get_session,
 )
 
@@ -27,6 +28,7 @@ def save_to_db(
     """
     engine = get_engine(db_path)
     create_tables(engine)
+    migrate_db(engine)
     db = get_session(engine)
     now = datetime.now().isoformat()
     saved = 0
@@ -80,9 +82,9 @@ def save_to_db(
                     text(
                         "INSERT INTO ranking_snapshots "
                         "(session_id, product_id, platform, category, rank, "
-                        "original_price, sale_price, discount_rate, rating, badge, collected_at) "
+                        "original_price, sale_price, discount_rate, rating, review_count, badge, collected_at) "
                         "VALUES (:session_id, :product_id, :platform, :category, :rank, "
-                        ":original_price, :sale_price, :discount_rate, :rating, :badge, :collected_at)"
+                        ":original_price, :sale_price, :discount_rate, :rating, :review_count, :badge, :collected_at)"
                     ),
                     {
                         "session_id": session_id,
@@ -94,6 +96,7 @@ def save_to_db(
                         "sale_price": item.sale_price,
                         "discount_rate": item.discount_rate,
                         "rating": item.rating,
+                        "review_count": item.review_count,
                         "badge": item.badge,
                         "collected_at": now,
                     },
@@ -106,3 +109,33 @@ def save_to_db(
 
     log.info(f"DB 저장 완료: {saved}건 (session: {session_id})")
     return saved
+
+
+def update_ratings(
+    product_id: str,
+    session_id: str,
+    rating: float | None,
+    review_count: int | None,
+    db_path: str = "data/beauty_ranking.db",
+) -> None:
+    """상세 페이지에서 수집한 rating + review_count를 ranking_snapshots에 업데이트"""
+    engine = get_engine(db_path)
+    db = get_session(engine)
+    with db.begin():
+        db.execute(
+            text(
+                "UPDATE ranking_snapshots "
+                "SET rating = :rating, review_count = :review_count "
+                "WHERE session_id = :session_id "
+                "AND product_id = ("
+                "  SELECT id FROM products "
+                "  WHERE product_id = :ext_id AND platform = 'oliveyoung'"
+                ")"
+            ),
+            {
+                "rating": rating,
+                "review_count": review_count,
+                "session_id": session_id,
+                "ext_id": product_id,
+            },
+        )

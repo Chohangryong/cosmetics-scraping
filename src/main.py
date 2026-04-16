@@ -1,8 +1,10 @@
+import asyncio
 import logging
 import sys
 from datetime import datetime
 
 from src.config import parse_args
+from src.enricher import enrich_ratings
 from src.spider import BeautyRankingSpider
 from src.storage import save_to_db
 
@@ -39,7 +41,16 @@ def main():
     # 2. DB 저장
     saved = save_to_db(result.items, session_id=timestamp)
 
-    # 3. 부분 실패 감지 (eng review: 개선 3)
+    # 3. Rating 보강 (상세 페이지 → rating + review_count)
+    oy_ids = [i["product_id"] for i in result.items if i.get("platform") == "oliveyoung"]
+    if oy_ids:
+        log.info(f"Rating 보강 시작: 올리브영 {len(oy_ids)}개 상품")
+        enriched = asyncio.run(
+            enrich_ratings(oy_ids, session_id=timestamp, headless=args.headless)
+        )
+        log.info(f"Rating 보강: {enriched}건")
+
+    # 4. 부분 실패 감지 (eng review: 개선 3)
     oy_count = sum(1 for i in result.items if i.get("platform") == "oliveyoung")
     ms_count = sum(1 for i in result.items if i.get("platform") == "musinsa")
 
@@ -48,7 +59,7 @@ def main():
     elif oy_count == 0 or ms_count == 0:
         log.warning(f"부분 실패: 올리브영={oy_count}건, 무신사={ms_count}건")
 
-    # 4. 통계
+    # 5. 통계
     log.info(f"총 수집: {len(result.items)}건 (올리브영: {oy_count}, 무신사: {ms_count})")
     log.info(f"DB 저장: {saved}건")
     log.info(f"통계: {result.stats}")

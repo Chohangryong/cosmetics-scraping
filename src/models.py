@@ -8,6 +8,7 @@ from sqlalchemy import (
     Text,
     create_engine,
     Index,
+    text,
 )
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
@@ -45,6 +46,7 @@ class RankingSnapshot(Base):
     sale_price = Column(Integer)
     discount_rate = Column(Integer)
     rating = Column(Float)
+    review_count = Column(Integer)
     badge = Column(Text)
     collected_at = Column(Text, nullable=False)
 
@@ -66,6 +68,7 @@ class RankingItem(BaseModel):
     sale_price: int | None = None
     discount_rate: int | None = None
     rating: float | None = None
+    review_count: int | None = None
     badge: str = ""
 
 
@@ -75,6 +78,17 @@ def get_engine(db_path: str = "data/beauty_ranking.db"):
 
 def create_tables(engine):
     Base.metadata.create_all(engine)
+
+
+def migrate_db(engine) -> None:
+    """기존 DB에 누락된 컬럼 추가 (idempotent)"""
+    with engine.connect() as conn:
+        for col in ["review_count INTEGER"]:
+            try:
+                conn.execute(text(f"ALTER TABLE ranking_snapshots ADD COLUMN {col}"))
+                conn.commit()
+            except Exception:
+                pass  # 이미 존재하면 무시
 
 
 def get_session(engine) -> Session:

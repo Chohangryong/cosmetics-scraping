@@ -13,8 +13,8 @@ from src.config import (
 )
 from src.parsers import (
     parse_price,
-    parse_rating,
     parse_rank_from_data_attr,
+    calc_discount_rate,
     extract_badges,
     extract_musinsa_product_name,
 )
@@ -101,6 +101,8 @@ class BeautyRankingSpider(Spider):
             if not product_id:
                 continue
             data_attr = item.css("a[data-ref-goodsno]::attr(data-attr)").get("")
+            sale_price = parse_price(item.css(".tx_cur .tx_num::text").get())
+            original_price = parse_price(item.css(".tx_org .tx_num::text").get())
             yield {
                 "platform": "oliveyoung",
                 "category": response.meta["category"],
@@ -108,11 +110,11 @@ class BeautyRankingSpider(Spider):
                 "rank": parse_rank_from_data_attr(data_attr),
                 "brand": (item.css(".tx_brand::text").get("")).strip(),
                 "name": (item.css(".tx_name::text").get("")).strip(),
-                "sale_price": parse_price(item.css(".tx_cur .tx_num::text").get()),
-                "original_price": parse_price(item.css(".tx_org .tx_num::text").get()),
-                "rating": parse_rating(item.css(".point::text").get()),
+                "sale_price": sale_price,
+                "original_price": original_price,
+                "discount_rate": calc_discount_rate(original_price, sale_price),
+                "rating": None,  # 상세 페이지에서 수집 (enrich_ratings)
                 "badge": ",".join(item.css(".icon_flag::text").getall()).strip(),
-                "discount_rate": None,
             }
 
     # ── 무신사 파싱 (Stage 3에서 활성화) ──
