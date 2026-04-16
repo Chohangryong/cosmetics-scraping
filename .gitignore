@@ -1,0 +1,17 @@
+# 수집 데이터 (로컬 전용)
+data/
+
+# 로그
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+
+# 환경 설정
+.env
