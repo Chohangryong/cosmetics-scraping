@@ -228,6 +228,28 @@ def print_report(curr, prev, curr_sid, prev_sid, top_brands: int = 10):
                 "avg_rank_current": round(sum(ranks) / cnt_c, 1),
             })
 
+    # ── 섹션 ④ 리뷰수 TOP N ──────────────────────────
+    all_items = [
+        item
+        for cat in CATEGORY_ORDER
+        for item in curr.get(cat, {}).values()
+        if item.get("review_count") is not None
+    ]
+    if all_items:
+        print(f"\n{BAR}")
+        print(f"  ④ 리뷰수 TOP{top_brands}  (리뷰 많은 순)")
+        print(BAR)
+        print(f"  {'카테고리':<10}  {'순위':>4}  {'브랜드':<14}  {'상품명':<26}  {'평점':>5}  {'리뷰수':>8}")
+        print(SEP)
+        for item in sorted(all_items, key=lambda x: -(x["review_count"] or 0))[:top_brands]:
+            rating_str = f"★{item['rating']}" if item.get("rating") else "-"
+            print(
+                f"  {item['category']:<10}  "
+                f"{item['rank']:>4}  {trunc(item['brand'], 14):<14}  "
+                f"{trunc(item['name'], 26):<26}  {rating_str:>5}  "
+                f"{item['review_count']:>8,}건"
+            )
+
     return products_rows, brands_rows
 
 
