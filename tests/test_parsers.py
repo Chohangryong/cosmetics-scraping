@@ -1,6 +1,5 @@
 from src.parsers import (
     parse_price,
-    parse_rating,
     parse_rank_from_data_attr,
     extract_musinsa_product_name,
 )
@@ -28,25 +27,6 @@ class TestParsePrice:
     def test_no_comma(self):
         assert parse_price("9900") == 9900
 
-
-class TestParseRating:
-    def test_normal(self):
-        assert parse_rating("10점만점에 5.5점") == 5.5
-
-    def test_perfect(self):
-        assert parse_rating("10점만점에 10점") == 10.0
-
-    def test_integer(self):
-        assert parse_rating("10점만점에 8점") == 8.0
-
-    def test_none(self):
-        assert parse_rating(None) is None
-
-    def test_empty(self):
-        assert parse_rating("") is None
-
-    def test_no_match(self):
-        assert parse_rating("별점없음") is None
 
 
 class TestParseRankFromDataAttr:

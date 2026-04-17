@@ -39,15 +39,33 @@ async def enrich_ratings(
                 wait_selector="span.rating",
                 wait_selector_state="visible",
             )
+        except Exception as e:
+            log.warning(f"rating wait_selector 타임아웃, 재시도 ({product_id}): {e}")
+            try:
+                page = await fetcher.async_fetch(
+                    url,
+                    headless=headless,
+                    network_idle=False,
+                    disable_resources=False,
+                )
+            except Exception as e2:
+                log.warning(f"rating 보강 실패 ({product_id}): {e2}")
+                await asyncio.sleep(delay)
+                continue
+
+        try:
             rating = parse_rating_detail(page.css("span.rating::text").get())
             review_count = parse_review_count(
                 page.css('[class*="GoodsDetailTabs_review-count"]::text').get()
             )
             update_ratings(product_id, session_id, rating, review_count, db_path)
-            log.debug(f"보강 ({i+1}/{len(product_ids)}): {product_id} → ★{rating} 리뷰{review_count}건")
+            if rating is None:
+                log.info(f"rating 없는 상품 (미출시 등) ({product_id})")
+            else:
+                log.debug(f"보강 ({i+1}/{len(product_ids)}): {product_id} → ★{rating} 리뷰{review_count}건")
             enriched += 1
         except Exception as e:
-            log.warning(f"rating 보강 실패 ({product_id}): {e}")
+            log.warning(f"rating 파싱 실패 ({product_id}): {e}")
 
         await asyncio.sleep(delay)
 
