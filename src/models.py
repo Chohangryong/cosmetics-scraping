@@ -11,6 +11,7 @@ from sqlalchemy import (
     text,
 )
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
+from sqlalchemy.pool import NullPool
 
 
 class Base(DeclarativeBase):
@@ -73,7 +74,11 @@ class RankingItem(BaseModel):
 
 
 def get_engine(db_path: str = "data/beauty_ranking.db"):
-    return create_engine(f"sqlite:///{db_path}", echo=False)
+    engine = create_engine(f"sqlite:///{db_path}", echo=False, poolclass=NullPool)
+    with engine.connect() as conn:
+        conn.execute(text("PRAGMA journal_mode=WAL"))
+        conn.commit()
+    return engine
 
 
 def create_tables(engine):
