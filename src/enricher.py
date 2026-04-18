@@ -88,7 +88,7 @@ async def enrich_ratings(
     headless: bool = False,
     db_path: str = "data/beauty_ranking.db",
     delay: float = 7.0,
-    concurrency: int = 5,
+    concurrency: int = 3,
     stagger_interval: float = 2.5,
 ) -> int:
     """올리브영 상품 상세 페이지에서 rating + review_count 병렬 수집 후 DB 업데이트.
