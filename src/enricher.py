@@ -34,6 +34,7 @@ async def _fetch_one(
                 headless=headless,
                 network_idle=False,
                 disable_resources=False,
+                solve_cloudflare=True,
                 **({"wait_selector": "span.rating", "wait_selector_state": "visible"} if wait else {}),
             )
 
