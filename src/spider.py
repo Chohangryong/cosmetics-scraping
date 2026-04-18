@@ -16,7 +16,6 @@ from src.parsers import (
     parse_rank_from_data_attr,
     calc_discount_rate,
     extract_badges,
-    extract_musinsa_product_name,
 )
 
 log = logging.getLogger(__name__)
@@ -117,25 +116,33 @@ class BeautyRankingSpider(Spider):
                 "badge": ",".join(item.css(".icon_flag::text").getall()).strip(),
             }
 
-    # ── 무신사 파싱 (Stage 3에서 활성화) ──
+    # ── 무신사 파싱 ──
     async def parse_musinsa(self, response: Response):
-        items = self._adaptive_css(response, 'div[class*="UIProductColumn__Wrap"]')
+        items = response.css('[class*="UIProductColumn__Wrap"][class*="gtm-view-item-list"]')
 
         if not items:
             log.error(f"무신사 파싱 0건: {response.meta.get('category')}")
             return
 
         for card in items[:50]:
+            product_id = card.css("::attr(data-item-id)").get("")
+            if not product_id:
+                continue
+            name_raw = card.css("img::attr(alt)").get("")
+            name = name_raw.replace(" 상품 이미지", "").strip()
+            original_price = int(card.css("::attr(data-original-price)").get("0") or "0") or None
+            sale_price = int(card.css("::attr(data-price)").get("0") or "0") or None
+            discount_rate = int(card.css("::attr(data-discount-rate)").get("0") or "0") or None
             yield {
                 "platform": "musinsa",
                 "category": response.meta["category"],
-                "product_id": card.css("::attr(data-item-id)").get(""),
+                "product_id": product_id,
                 "rank": int(card.css("::attr(data-index)").get("0")),
                 "brand": card.css("::attr(data-item-brand)").get(""),
-                "name": extract_musinsa_product_name(card),
-                "original_price": int(card.css("::attr(data-original-price)").get("0") or "0"),
-                "sale_price": int(card.css("::attr(data-best-price)").get("0") or "0"),
-                "discount_rate": int(card.css("::attr(data-discount-rate)").get("0") or "0"),
+                "name": name,
+                "original_price": original_price,
+                "sale_price": sale_price,
+                "discount_rate": discount_rate,
                 "badge": card.css("::attr(data-item-flag)").get(""),
                 "rating": None,
             }

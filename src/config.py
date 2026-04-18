@@ -24,12 +24,23 @@ OLIVEYOUNG_URLS: list[tuple[str, str]] = [
 ]
 
 # ── 무신사 URL ──
-# categoryCode는 Stage 3에서 실제 탭 클릭으로 확정
-MUSINSA_BASE = "https://www.musinsa.com/main/beauty/ranking?categoryCode={code}"
+MUSINSA_BASE = "https://www.musinsa.com/main/beauty/ranking?gf=A&storeCode=beauty&sectionId=231&categoryCode={code}"
 MUSINSA_URLS: list[tuple[str, str]] = [
-    (MUSINSA_BASE.format(code="TBD_SKINCARE"), "skincare"),
-    (MUSINSA_BASE.format(code="TBD_MAKEUP"),   "makeup"),
-    (MUSINSA_BASE.format(code="TBD_SUNCARE"),  "suncare"),
+    (MUSINSA_BASE.format(code="104001"), "skincare"),
+    (MUSINSA_BASE.format(code="104013"), "mask_pack"),
+    (MUSINSA_BASE.format(code="104014"), "base_makeup"),
+    (MUSINSA_BASE.format(code="104015"), "lip_makeup"),
+    (MUSINSA_BASE.format(code="104016"), "eye_makeup"),
+    (MUSINSA_BASE.format(code="104017"), "nail"),
+    (MUSINSA_BASE.format(code="104005"), "fragrance"),
+    (MUSINSA_BASE.format(code="104002"), "suncare"),
+    (MUSINSA_BASE.format(code="104003"), "cleansing"),
+    (MUSINSA_BASE.format(code="104006"), "hair_care"),
+    (MUSINSA_BASE.format(code="104007"), "body_care"),
+    (MUSINSA_BASE.format(code="104009"), "shaving"),
+    (MUSINSA_BASE.format(code="104010"), "beauty_device"),
+    (MUSINSA_BASE.format(code="104011"), "beauty_tool"),
+    (MUSINSA_BASE.format(code="104012"), "health_food"),
 ]
 
 # ── 차단할 광고/트래커 도메인 ──

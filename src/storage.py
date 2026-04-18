@@ -129,7 +129,7 @@ def update_ratings(
                 "WHERE session_id = :session_id "
                 "AND product_id = ("
                 "  SELECT id FROM products "
-                "  WHERE product_id = :ext_id AND platform = 'oliveyoung'"
+                "  WHERE product_id = :ext_id AND platform = 'oliveyoung'"  # TODO: platform 파라미터화 필요 (무신사 rating 보강 시)
                 ")"
             ),
             {
