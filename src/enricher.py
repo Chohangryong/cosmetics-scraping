@@ -27,26 +27,39 @@ async def _fetch_one(
     await asyncio.sleep(stagger)
     async with semaphore:
         url = DETAIL_URL.format(product_id)
-        try:
-            page = await fetcher.async_fetch(
+
+        async def _fetch(wait: bool) -> object:
+            return await fetcher.async_fetch(
                 url,
                 headless=headless,
                 network_idle=False,
                 disable_resources=False,
-                wait_selector="span.rating",
-                wait_selector_state="visible",
+                **({"wait_selector": "span.rating", "wait_selector_state": "visible"} if wait else {}),
             )
+
+        page = None
+        try:
+            page = await _fetch(wait=True)
         except Exception as e:
             log.warning(f"rating wait_selector 타임아웃, 재시도 ({product_id}): {e}")
             try:
-                page = await fetcher.async_fetch(
-                    url,
-                    headless=headless,
-                    network_idle=False,
-                    disable_resources=False,
-                )
+                page = await _fetch(wait=False)
             except Exception as e2:
                 log.warning(f"rating 보강 실패 ({product_id}): {e2}")
+                await asyncio.sleep(delay)
+                return
+
+        if page.status == 403:
+            log.warning(f"403 봇 차단, 30s 후 재시도 ({product_id})")
+            await asyncio.sleep(30)
+            try:
+                page = await _fetch(wait=False)
+            except Exception as e3:
+                log.warning(f"403 재시도 실패 ({product_id}): {e3}")
+                await asyncio.sleep(delay)
+                return
+            if page.status == 403:
+                log.warning(f"403 재시도도 차단, 스킵 ({product_id})")
                 await asyncio.sleep(delay)
                 return
 
@@ -76,7 +89,7 @@ async def enrich_ratings(
     db_path: str = "data/beauty_ranking.db",
     delay: float = 7.0,
     concurrency: int = 5,
-    stagger_interval: float = 0.5,
+    stagger_interval: float = 2.5,
 ) -> int:
     """올리브영 상품 상세 페이지에서 rating + review_count 병렬 수집 후 DB 업데이트.
 
