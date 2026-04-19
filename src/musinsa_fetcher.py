@@ -25,6 +25,8 @@ def parse_item(item: dict, category: str) -> dict:
 
     review_score_raw = amp.get("reviewScore")
     review_count_raw = amp.get("reviewCount")
+    review_count = int(review_count_raw) if review_count_raw is not None else None
+    review_score = int(review_score_raw) if (review_score_raw is not None and review_count) else None
 
     return {
         "platform": "musinsa",
@@ -37,8 +39,8 @@ def parse_item(item: dict, category: str) -> dict:
         "original_price": ga4.get("original_price"),
         "discount_rate": info.get("discountRatio"),
         "badge": badge,
-        "review_score": int(review_score_raw) if review_score_raw is not None else None,
-        "review_count": int(review_count_raw) if review_count_raw is not None else None,
+        "review_score": review_score,
+        "review_count": review_count,
         "rating": None,
     }
 
