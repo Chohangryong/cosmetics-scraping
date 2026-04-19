@@ -82,9 +82,9 @@ def save_to_db(
                     text(
                         "INSERT INTO ranking_snapshots "
                         "(session_id, product_id, platform, category, rank, "
-                        "original_price, sale_price, discount_rate, rating, review_count, badge, collected_at) "
+                        "original_price, sale_price, discount_rate, rating, review_count, review_score, badge, collected_at) "
                         "VALUES (:session_id, :product_id, :platform, :category, :rank, "
-                        ":original_price, :sale_price, :discount_rate, :rating, :review_count, :badge, :collected_at)"
+                        ":original_price, :sale_price, :discount_rate, :rating, :review_count, :review_score, :badge, :collected_at)"
                     ),
                     {
                         "session_id": session_id,
@@ -97,6 +97,7 @@ def save_to_db(
                         "discount_rate": item.discount_rate,
                         "rating": item.rating,
                         "review_count": item.review_count,
+                        "review_score": item.review_score,
                         "badge": item.badge,
                         "collected_at": now,
                     },
