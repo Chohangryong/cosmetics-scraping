@@ -23,24 +23,23 @@ OLIVEYOUNG_URLS: list[tuple[str, str]] = [
     (OLIVEYOUNG_BASE.format(code="10000010011"), "suncare"),
 ]
 
-# ── 무신사 URL ──
-MUSINSA_BASE = "https://www.musinsa.com/main/beauty/ranking?gf=A&storeCode=beauty&sectionId=231&categoryCode={code}"
-MUSINSA_URLS: list[tuple[str, str]] = [
-    (MUSINSA_BASE.format(code="104001"), "skincare"),
-    (MUSINSA_BASE.format(code="104013"), "mask_pack"),
-    (MUSINSA_BASE.format(code="104014"), "base_makeup"),
-    (MUSINSA_BASE.format(code="104015"), "lip_makeup"),
-    (MUSINSA_BASE.format(code="104016"), "eye_makeup"),
-    (MUSINSA_BASE.format(code="104017"), "nail"),
-    (MUSINSA_BASE.format(code="104005"), "fragrance"),
-    (MUSINSA_BASE.format(code="104002"), "suncare"),
-    (MUSINSA_BASE.format(code="104003"), "cleansing"),
-    (MUSINSA_BASE.format(code="104006"), "hair_care"),
-    (MUSINSA_BASE.format(code="104007"), "body_care"),
-    (MUSINSA_BASE.format(code="104009"), "shaving"),
-    (MUSINSA_BASE.format(code="104010"), "beauty_device"),
-    (MUSINSA_BASE.format(code="104011"), "beauty_tool"),
-    (MUSINSA_BASE.format(code="104012"), "health_food"),
+# ── 무신사 카테고리 코드 ──
+MUSINSA_CATEGORY_CODES: list[tuple[str, str]] = [
+    ("104001", "skincare"),
+    ("104013", "mask_pack"),
+    ("104014", "base_makeup"),
+    ("104015", "lip_makeup"),
+    ("104016", "eye_makeup"),
+    ("104017", "nail"),
+    ("104005", "fragrance"),
+    ("104002", "suncare"),
+    ("104003", "cleansing"),
+    ("104006", "hair_care"),
+    ("104007", "body_care"),
+    ("104009", "shaving"),
+    ("104010", "beauty_device"),
+    ("104011", "beauty_tool"),
+    ("104012", "health_food"),
 ]
 
 # ── 차단할 광고/트래커 도메인 ──
