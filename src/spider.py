@@ -1,4 +1,3 @@
-import asyncio
 import logging
 
 from scrapling.spiders import Spider, Request, Response
@@ -6,7 +5,6 @@ from scrapling.fetchers import AsyncStealthySession
 
 from src.config import (
     OLIVEYOUNG_URLS,
-    MUSINSA_URLS,
     ADAPTIVE_MODE,
     BLOCKED_DOMAINS,
     parse_args,
@@ -51,21 +49,6 @@ class BeautyRankingSpider(Spider):
             ),
             lazy=False,
         )
-        manager.add(
-            "musinsa",
-            AsyncStealthySession(
-                headless=self._headless,
-                network_idle=True,
-                disable_resources=True,
-                blocked_domains=BLOCKED_DOMAINS,
-                hide_canvas=True,
-                block_webrtc=True,
-                timeout=60000,
-                google_search=True,
-                solve_cloudflare=False,
-            ),
-            lazy=True,
-        )
 
     # ── 시작 요청 ──
     async def start_requests(self):
@@ -75,16 +58,6 @@ class BeautyRankingSpider(Spider):
                 callback=self.parse_oliveyoung,
                 sid="oliveyoung",
                 meta={"platform": "oliveyoung", "category": category},
-            )
-        for url, category in MUSINSA_URLS:
-            if "TBD" in url:
-                log.info(f"무신사 {category} 건너뜀: categoryCode 미확정")
-                continue
-            yield Request(
-                url=url,
-                callback=self.parse_musinsa,
-                sid="musinsa",
-                meta={"platform": "musinsa", "category": category},
             )
 
     # ── 올리브영 파싱 (Scrapy-style Selector API) ──
@@ -115,40 +88,6 @@ class BeautyRankingSpider(Spider):
                 "rating": None,  # 상세 페이지에서 수집 (enrich_ratings)
                 "badge": ",".join(item.css(".icon_flag::text").getall()).strip(),
             }
-
-    # ── 무신사 파싱 ──
-    async def parse_musinsa(self, response: Response):
-        items = response.css('[class*="UIProductColumn__Wrap"][class*="gtm-view-item-list"]')
-
-        if not items:
-            log.error(f"무신사 파싱 0건: {response.meta.get('category')}")
-            return
-
-        for card in items[:50]:
-            product_id = card.css("::attr(data-item-id)").get("")
-            if not product_id:
-                continue
-            name_raw = card.css("img::attr(alt)").get("")
-            name = name_raw.replace(" 상품 이미지", "").strip()
-            original_price = int(card.css("::attr(data-original-price)").get("0") or "0") or None
-            sale_price = int(card.css("::attr(data-price)").get("0") or "0") or None
-            discount_rate = int(card.css("::attr(data-discount-rate)").get("0") or "0") or None
-            yield {
-                "platform": "musinsa",
-                "category": response.meta["category"],
-                "product_id": product_id,
-                "rank": int(card.css("::attr(data-index)").get("0")),
-                "brand": card.css("::attr(data-item-brand)").get(""),
-                "name": name,
-                "original_price": original_price,
-                "sale_price": sale_price,
-                "discount_rate": discount_rate,
-                "badge": card.css("::attr(data-item-flag)").get(""),
-                "rating": None,
-            }
-
-        # 무신사 Crawl-delay: 60 준수 (download_delay 20 + sleep 40 = 60초)
-        await asyncio.sleep(40)
 
     # ── 기본 parse (Spider 추상 메서드 구현) ──
     async def parse(self, response: Response):
