@@ -63,6 +63,8 @@ async def fetch_category(
             if raw_item.get("type") != "PRODUCT_COLUMN":
                 continue
             parsed = parse_item(raw_item, category)
+            if parsed["rank"] <= 0:
+                continue
             if parsed["rank"] > max_rank:
                 return items
             items.append(parsed)
