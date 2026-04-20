@@ -40,7 +40,8 @@
 | `original_price` | 정가 (원) |
 | `sale_price` | 할인가 (원) |
 | `discount_rate` | 할인율 (%) |
-| `rating` | 별점 (0~5) |
+| `rating` | 별점 (0~5) — 올리브영만 수집 (상세 페이지 보강) |
+| `review_score` | 리뷰 점수 (정수) — 무신사만 수집 (API 제공) |
 | `review_count` | 리뷰 수 |
 | `badge` | 랭킹 뱃지 (신상, 베스트 등) |
 | `platform` | `oliveyoung` / `musinsa` |
