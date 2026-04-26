@@ -6,11 +6,23 @@ import argparse
 ADAPTIVE_MODE: bool = False
 
 # ── CLI 인자 ──
+PLATFORM_CHOICES = ("oliveyoung", "musinsa", "hwahae")
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description="뷰티 랭킹 수집기")
     parser.add_argument("--headless", action="store_true", default=False,
                         help="브라우저를 헤드리스 모드로 실행 (스케줄링용)")
-    return parser.parse_args()
+    parser.add_argument("--platforms", default=",".join(PLATFORM_CHOICES),
+                        help=f"수집 대상 (콤마 구분). 선택지: {','.join(PLATFORM_CHOICES)}. 예: --platforms hwahae")
+    parser.add_argument("--hwahae-scope", choices=["a", "b"], default="b",
+                        help="화해 수집 범위: a=depth-2(13개), b=depth-2+depth-3(117개)")
+    args = parser.parse_args()
+    args.platforms = [p.strip() for p in args.platforms.split(",") if p.strip()]
+    invalid = [p for p in args.platforms if p not in PLATFORM_CHOICES]
+    if invalid:
+        parser.error(f"unknown platform: {invalid} (choices: {PLATFORM_CHOICES})")
+    return args
 
 # ── 올리브영 URL ──
 OLIVEYOUNG_BASE = (
