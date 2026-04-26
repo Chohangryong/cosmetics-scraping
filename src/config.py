@@ -19,8 +19,18 @@ OLIVEYOUNG_BASE = (
 )
 OLIVEYOUNG_URLS: list[tuple[str, str]] = [
     (OLIVEYOUNG_BASE.format(code="10000010001"), "skincare"),
-    (OLIVEYOUNG_BASE.format(code="10000010002"), "makeup"),
+    (OLIVEYOUNG_BASE.format(code="10000010009"), "mask_pack"),
+    (OLIVEYOUNG_BASE.format(code="10000010010"), "cleansing"),
     (OLIVEYOUNG_BASE.format(code="10000010011"), "suncare"),
+    (OLIVEYOUNG_BASE.format(code="10000010002"), "makeup"),
+    (OLIVEYOUNG_BASE.format(code="10000010012"), "nail"),
+    (OLIVEYOUNG_BASE.format(code="10000010006"), "makeup_tool"),
+    (OLIVEYOUNG_BASE.format(code="10000010008"), "dermo_cosmetics"),
+    (OLIVEYOUNG_BASE.format(code="10000010007"), "mens_edit"),
+    (OLIVEYOUNG_BASE.format(code="10000010005"), "fragrance"),
+    (OLIVEYOUNG_BASE.format(code="10000010004"), "hair_care"),
+    (OLIVEYOUNG_BASE.format(code="10000010003"), "body_care"),
+    (OLIVEYOUNG_BASE.format(code="10000020004"), "hygiene"),
 ]
 
 # ── 무신사 카테고리 코드 ──
