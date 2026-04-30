@@ -8,6 +8,7 @@ from src.config import parse_args, MUSINSA_CATEGORY_CODES
 from src.enricher import enrich_ratings
 from src import musinsa_fetcher, hwahae_fetcher
 from src.hwahae_ingredients import enrich_ingredients
+from src.hwahae_effects import enrich_effects
 from src.models import get_engine, get_session
 from src.spider import BeautyRankingSpider
 from src.storage import save_to_db
@@ -86,6 +87,14 @@ def main():
         db = get_session(get_engine())
         try:
             asyncio.run(enrich_ingredients(db))
+        finally:
+            db.close()
+
+    # 5c. 화해 AI 효능 enrich
+    if args.enrich_effects and "hwahae" in args.platforms:
+        db = get_session(get_engine())
+        try:
+            asyncio.run(enrich_effects(db))
         finally:
             db.close()
 

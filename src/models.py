@@ -85,6 +85,41 @@ class ProductIngredient(Base):
     )
 
 
+class Effect(Base):
+    __tablename__ = "effects"
+
+    id = Column(Integer, primary_key=True)  # 화해 effect.id 그대로 사용
+    name = Column(Text, nullable=False)
+
+
+class ProductEffect(Base):
+    __tablename__ = "product_effects"
+
+    product_id = Column(Integer, ForeignKey("products.id"), primary_key=True)
+    effect_id = Column(Integer, ForeignKey("effects.id"), primary_key=True)
+    score = Column(Integer, nullable=False)
+    is_analyzing = Column(Boolean, default=False)
+    collected_at = Column(Text, default=lambda: datetime.now().isoformat())
+
+    __table_args__ = (
+        Index("idx_pe_effect", "effect_id"),
+    )
+
+
+class EffectEvidence(Base):
+    __tablename__ = "effect_evidences"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    product_id = Column(Integer, nullable=False)
+    effect_id = Column(Integer, nullable=False)
+    evidence_type = Column(Text, nullable=False)
+    result_text = Column(Text, nullable=False)
+
+    __table_args__ = (
+        Index("idx_evidences_lookup", "product_id", "effect_id"),
+    )
+
+
 class RankingItem(BaseModel):
     """Spider가 yield하는 dict의 검증 스키마"""
     platform: str

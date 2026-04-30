@@ -19,6 +19,8 @@ def parse_args():
                         help="화해 수집 범위: a=depth-2(13개), b=depth-2+depth-3(117개)")
     parser.add_argument("--enrich-ingredients", action="store_true", default=False,
                         help="화해 성분 정보 enrich (concurrency 4, 화해 제품당 1 호출)")
+    parser.add_argument("--enrich-effects", action="store_true", default=False,
+                        help="화해 AI 효능 분석 enrich (concurrency 4, 화해 제품당 1 호출)")
     args = parser.parse_args()
     args.platforms = [p.strip() for p in args.platforms.split(",") if p.strip()]
     invalid = [p for p in args.platforms if p not in PLATFORM_CHOICES]
