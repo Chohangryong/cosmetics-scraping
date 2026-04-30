@@ -69,8 +69,13 @@ def _upsert_ingredient(db: Session, ing: dict[str, Any]) -> int | None:
 
 async def enrich_ingredients(db: Session) -> dict:
     """화해 제품 전체에 대해 성분 enrich. db는 commit까지 책임."""
-    rows = db.execute(text("SELECT id, product_id FROM products WHERE platform='hwahae'")).fetchall()
-    log.info(f"성분 enrich 시작: 화해 제품 {len(rows)}개")
+    rows = db.execute(text("""
+        SELECT p.id, p.product_id
+        FROM products p
+        LEFT JOIN product_ingredients pi ON pi.product_id = p.id
+        WHERE p.platform='hwahae' AND pi.product_id IS NULL
+    """)).fetchall()
+    log.info(f"성분 enrich 시작: 화해 신규 제품 {len(rows)}개")
 
     sem = asyncio.Semaphore(CONCURRENCY)
     enriched = 0
