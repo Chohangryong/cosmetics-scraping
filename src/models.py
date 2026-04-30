@@ -2,7 +2,9 @@ from datetime import datetime
 
 from pydantic import BaseModel
 from sqlalchemy import (
+    Boolean,
     Column,
+    ForeignKey,
     Integer,
     Float,
     Text,
@@ -55,6 +57,31 @@ class RankingSnapshot(Base):
     __table_args__ = (
         Index("idx_snapshots_lookup", "platform", "category", "collected_at"),
         Index("idx_snapshots_product", "product_id", "collected_at"),
+    )
+
+
+class Ingredient(Base):
+    __tablename__ = "ingredients"
+
+    id = Column(Integer, primary_key=True)  # 화해 ingredient.id 그대로 사용
+    name = Column(Text, nullable=False)
+    ewg = Column(Text)
+    is_twenty = Column(Boolean, default=False)
+    is_allergy = Column(Boolean, default=False)
+    formulation_purpose = Column(Text)
+    purpose_groups = Column(Text)  # JSON 배열 string
+    fetched_at = Column(Text, default=lambda: datetime.now().isoformat())
+
+
+class ProductIngredient(Base):
+    __tablename__ = "product_ingredients"
+
+    product_id = Column(Integer, ForeignKey("products.id"), primary_key=True)
+    ingredient_id = Column(Integer, ForeignKey("ingredients.id"), primary_key=True)
+    position = Column(Integer, nullable=False)  # 첨가 순서 (1부터)
+
+    __table_args__ = (
+        Index("idx_pi_ingredient", "ingredient_id"),
     )
 
 

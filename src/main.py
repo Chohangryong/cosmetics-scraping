@@ -7,6 +7,8 @@ from datetime import datetime
 from src.config import parse_args, MUSINSA_CATEGORY_CODES
 from src.enricher import enrich_ratings
 from src import musinsa_fetcher, hwahae_fetcher
+from src.hwahae_ingredients import enrich_ingredients
+from src.models import get_engine, get_session
 from src.spider import BeautyRankingSpider
 from src.storage import save_to_db
 
@@ -78,6 +80,14 @@ def main():
             enrich_ratings(oy_ids, session_id=timestamp, headless=args.headless)
         )
         log.info(f"Rating 보강: {enriched}건")
+
+    # 5b. 화해 성분 enrich
+    if args.enrich_ingredients and "hwahae" in args.platforms:
+        db = get_session(get_engine())
+        try:
+            asyncio.run(enrich_ingredients(db))
+        finally:
+            db.close()
 
     # 6. 부분 실패 감지
     counts = {"oliveyoung": len(oy_items), "musinsa": len(ms_items), "hwahae": len(hw_items)}
